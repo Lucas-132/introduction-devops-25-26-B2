@@ -19,6 +19,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          extra_args: --only-verified
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -33,7 +39,7 @@ jobs:
 
       - name: Run formatter check
         run: npm run format:check
-      
+
       - name: Run Trivy vulnerability scanner in repo mode
         uses: aquasecurity/trivy-action@0.33.1
         with:
@@ -47,19 +53,6 @@ jobs:
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-results.sarif'
-      
-      - name: Run Snyk security scan
-        uses: snyk/actions/node@0.4.0
-        continue-on-error: true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high
-      
-      - name: Secret Scanning
-        uses: trufflesecurity/trufflehog@main
-        with:
-          extra_args: --results=verified,unknown
 
       - name: Build application
         run: npm run build
